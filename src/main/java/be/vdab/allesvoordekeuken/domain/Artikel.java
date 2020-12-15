@@ -37,4 +37,10 @@ public class Artikel {
     public BigDecimal getVerkoopprijs() {
         return verkoopprijs;
     }
+    public void verhoogVerkoopPrijs(BigDecimal bedrag) {
+        if (bedrag.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException();
+        }
+        verkoopprijs = verkoopprijs.add(bedrag);
+    }
 }
