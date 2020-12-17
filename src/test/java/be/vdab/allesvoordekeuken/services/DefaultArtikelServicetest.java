@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
     @Test
     void verhoogVerkoopPrijs() {
         when(repository.findById(1)).thenReturn(Optional.of(artikel));
-        service.verhoogVerkoopPrijs(1,BigDecimal.TEN);
+        service.verhoogVerkoopPrijs(1,BigDecimal.ONE);
         assertThat(artikel.getVerkoopprijs()).isEqualByComparingTo("11");
         verify(repository).findById(1);
     }
