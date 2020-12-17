@@ -60,4 +60,13 @@ class JpaArtikelRepositoryTest
                 .allSatisfy(naam -> assertThat(naam).contains("es"))
                 .isSorted();
     }
+    @Test
+    void algemenePrijsVerhoging() {
+        assertThat(repository.verhoogAlleVerkoopPrijzen(BigDecimal.TEN))
+                .isEqualTo(super.countRowsInTable(ARTIKELS));
+        assertThat(super.jdbcTemplate.queryForObject(
+                "select verkoopprijs from artikels where id=?", BigDecimal.class,
+                idVanTestArtikel())).isEqualByComparingTo("132");
+    }
+
 }
