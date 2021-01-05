@@ -3,6 +3,8 @@ package be.vdab.allesvoordekeuken.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import be.vdab.allesvoordekeuken.domain.Artikel;
+import be.vdab.allesvoordekeuken.domain.FoodArtikel;
+import be.vdab.allesvoordekeuken.domain.NonFoodArtikel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,46 +12,70 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
+import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 
 @DataJpaTest
 @Import(JpaArtikelRepository.class)
 @Sql("/insertArtikel.sql")
-class JpaArtikelRepositoryTest
+public class JpaArtikelRepositoryTest
         extends AbstractTransactionalJUnit4SpringContextTests{
     private final JpaArtikelRepository repository;
     private static final String ARTIKELS = "artikels";
-    private Artikel artikel;
+    private final EntityManager manager;
 
-    JpaArtikelRepositoryTest(JpaArtikelRepository repository) {
+
+
+    JpaArtikelRepositoryTest(JpaArtikelRepository repository, EntityManager manager) {
         this.repository = repository;
+        this.manager = manager;
     }
 
-    private long idVanTestArtikel() {
+    private long idVanTestFoodArtikel() {
         return super.jdbcTemplate.queryForObject(
-                "select id from artikels where naam='test'", Long.class);
+                "select id from artikels where naam='testfood'", Long.class);
+    }
+
+    private long idVanTestNonFoodArtikel() {
+        return super.jdbcTemplate.queryForObject(
+                "select id from artikels where naam='testnonfood'", Long.class);
+    }
+
+    @Test
+    void findFoodArtikelById() {
+        var artikel = repository.findById(idVanTestFoodArtikel()).get();
+        assertThat(artikel).isInstanceOf(FoodArtikel.class);
+        assertThat(artikel.getNaam()).isEqualTo("testfood");
     }
     @Test
-    void findById() {
-        assertThat(repository.findById(idVanTestArtikel()).get().getNaam())
-                .isEqualTo("test");
+    void findNonFoodArtikelById() {
+        var artikel = repository.findById(idVanTestNonFoodArtikel()).get();
+        assertThat(artikel).isInstanceOf(NonFoodArtikel.class);
+        assertThat(artikel.getNaam()).isEqualTo("testnonfood");
     }
     @Test
-    void findByOnbestaandeId() {
+    void findOnbestaandeId() {
         assertThat(repository.findById(-1)).isNotPresent();
     }
 
-    @BeforeEach
-    void beforeEach() {
-        artikel = new Artikel("test", BigDecimal.ONE, BigDecimal.TEN);
+    @Test
+    void createFoodArtikel() {
+        var artikel = new FoodArtikel("testfood2",BigDecimal.ONE,BigDecimal.TEN,7);
+        repository.create(artikel);
+        assertThat(super.countRowsInTableWhere(ARTIKELS,
+                "id=" + artikel.getId())).isOne();
+
+
+    }
+    @Test
+    void createNonFoodArtikel() {
+        var artikel =
+                new NonFoodArtikel("testnonfood2", BigDecimal.ONE, BigDecimal.TEN, 30);
+        repository.create(artikel);
+        assertThat(super.countRowsInTableWhere(ARTIKELS,
+                "id=" + artikel.getId())).isOne();
     }
 
-    @Test
-    void create() {
-        repository.create(artikel);
-        assertThat(artikel.getId()).isPositive();
-        assertThat(super.countRowsInTableWhere(ARTIKELS, "id=" + artikel.getId())).isOne();
-    }
 
     @Test
     void findBijNaamContains() {
@@ -60,13 +86,14 @@ class JpaArtikelRepositoryTest
                 .allSatisfy(naam -> assertThat(naam).contains("es"))
                 .isSorted();
     }
+
     @Test
-    void algemenePrijsVerhoging() {
+    void verhoogAlleVerkoopPrijzen() {
         assertThat(repository.verhoogAlleVerkoopPrijzen(BigDecimal.TEN))
-                .isEqualTo(super.countRowsInTable(ARTIKELS));
+                .isEqualTo(super.countRowsInTable("artikels"));
         assertThat(super.jdbcTemplate.queryForObject(
                 "select verkoopprijs from artikels where id=?", BigDecimal.class,
-                idVanTestArtikel())).isEqualByComparingTo("132");
+                idVanTestFoodArtikel())).isEqualByComparingTo("132");
     }
 
 }

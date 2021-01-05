@@ -2,12 +2,15 @@ package be.vdab.allesvoordekeuken.domain;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "artikels")
-public class Artikel {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "soort")
+public abstract class Artikel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "binary(16)")
     private long id;
     private String naam;
     private BigDecimal aankoopprijs;
