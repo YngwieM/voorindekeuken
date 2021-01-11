@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import be.vdab.allesvoordekeuken.domain.Artikel;
 import be.vdab.allesvoordekeuken.domain.FoodArtikel;
+import be.vdab.allesvoordekeuken.domain.Korting;
 import be.vdab.allesvoordekeuken.domain.NonFoodArtikel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,6 +95,11 @@ public class JpaArtikelRepositoryTest
         assertThat(super.jdbcTemplate.queryForObject(
                 "select verkoopprijs from artikels where id=?", BigDecimal.class,
                 idVanTestFoodArtikel())).isEqualByComparingTo("132");
+    }
+    @Test
+    void kortingenLezen() {
+        assertThat(repository.findById(idVanTestFoodArtikel()).get().getKortingen())
+                .containsOnly(new Korting(1, BigDecimal.TEN));
     }
 
 }
