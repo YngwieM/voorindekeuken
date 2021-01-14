@@ -1,5 +1,6 @@
 package be.vdab.allesvoordekeuken.services;
 import be.vdab.allesvoordekeuken.domain.Artikel;
+import be.vdab.allesvoordekeuken.domain.ArtikelGroep;
 import be.vdab.allesvoordekeuken.domain.FoodArtikel;
 import be.vdab.allesvoordekeuken.exceptions.ArtikelNietGevondenException;
 import be.vdab.allesvoordekeuken.repositories.ArtikelRepository;
@@ -23,11 +24,13 @@ import static org.mockito.Mockito.verify;
     @Mock
     private ArtikelRepository repository;
     private Artikel artikel;
+    private ArtikelGroep artikelGroep;
 
 
     @BeforeEach
     void beforeEach() {
-        artikel = new FoodArtikel("test", BigDecimal.ONE, BigDecimal.TEN, 1);
+        artikelGroep = new ArtikelGroep("test");
+        artikel = new FoodArtikel("test", BigDecimal.ONE, BigDecimal.TEN, 1,artikelGroep);
         service = new DefaultArtikelService(repository);
     }
 
