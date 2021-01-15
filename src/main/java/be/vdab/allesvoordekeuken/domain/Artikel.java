@@ -11,6 +11,8 @@ import java.util.Set;
 @Table(name = "artikels")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "soort")
+@NamedEntityGraph(name = Artikel.MET_ARTIKELGROEP,
+        attributeNodes = @NamedAttributeNode("artikelGroep"))
 public abstract class Artikel {
     @Id
     @Column(columnDefinition = "binary(16)")
@@ -26,6 +28,7 @@ public abstract class Artikel {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "artikelgroepid")
     private ArtikelGroep artikelGroep;
+    public static final String MET_ARTIKELGROEP = "Artikel.metArtikelGroep";
 
 
 
@@ -82,11 +85,11 @@ public abstract class Artikel {
         if (this == o) return true;
         if (!(o instanceof Artikel)) return false;
         Artikel artikel = (Artikel) o;
-        return id == artikel.id && Objects.equals(naam, artikel.naam) && Objects.equals(aankoopprijs, artikel.aankoopprijs) && Objects.equals(verkoopprijs, artikel.verkoopprijs) && Objects.equals(kortingen, artikel.kortingen) && Objects.equals(artikelGroep, artikel.artikelGroep);
+        return Objects.equals(naam, artikel.naam);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, naam, aankoopprijs, verkoopprijs, kortingen, artikelGroep);
+        return Objects.hash(naam);
     }
 }
